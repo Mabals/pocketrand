@@ -72,3 +72,43 @@ Content-Type: application/json
   "description": "Mistake",
   "amount": 0
 }
+
+### Register: Thato
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Thato Khonkhe",
+  "email": "thato@example.com",
+  "password": "Password123"
+}
+
+### Register: same email again (expect 409)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Thato Again",
+  "email": "THATO@example.com",
+  "password": "Password123"
+}
+
+### Register: second user with the SAME password (compare the hashes)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Lerato Mokoena",
+  "email": "lerato@example.com",
+  "password": "Password123"
+}
+
+### Register: invalid input (expect 400 with three field errors)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "not-an-email",
+  "password": "short"
+}
