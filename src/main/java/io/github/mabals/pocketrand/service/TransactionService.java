@@ -13,65 +13,71 @@ import io.github.mabals.pocketrand.model.Category;
 import io.github.mabals.pocketrand.model.CategorySource;
 import io.github.mabals.pocketrand.model.Transaction;
 import io.github.mabals.pocketrand.repository.TransactionRepository;
+import io.github.mabals.pocketrand.repository.UserRepository;
+import io.github.mabals.pocketrand.model.User;
+
 
 @Service
 public class TransactionService {
 
-    private final TransactionRepository repository;
+        private final TransactionRepository repository;
+        private final UserRepository userRepository;
 
-    public TransactionService(TransactionRepository repository) {
-        this.repository = repository;
-    }
-
-    public List<TransactionResponse> findAll() {
-        return repository.findAllByOrderByDateDescIdDesc().stream()
-                .map(TransactionResponse::from)
-                .toList();
-    }
-
-    public TransactionResponse findById(Long id) {
-        return TransactionResponse.from(getOrThrow(id));
-    }
-
-    @Transactional
-    public TransactionResponse create(TransactionRequest request) {
-        validateAmount(request.amount());
-
-        // Until automatic categorisation exists (Milestone 4), uncategorised
-        // transactions fall back to OTHER.
-        Category category = request.category() != null ? request.category() : Category.OTHER;
-        CategorySource source = request.category() != null ? CategorySource.USER : CategorySource.RULE;
-
-        Transaction transaction = new Transaction(
-                request.date(), request.description().trim(), request.amount(), category, source);
-
-        return TransactionResponse.from(repository.save(transaction));
-    }
-
-    @Transactional
-    public TransactionResponse update(Long id, TransactionRequest request) {
-        validateAmount(request.amount());
-        Transaction transaction = getOrThrow(id);
-        transaction.updateDetails(request.date(), request.description().trim(), request.amount());
-        if (request.category() != null) {
-            transaction.changeCategory(request.category(), CategorySource.USER);
+        public TransactionService(TransactionRepository repository, UserRepository userRepository) {
+            this.repository = repository;
+            this.userRepository = userRepository;
         }
-        return TransactionResponse.from(transaction);
-    }
 
-    @Transactional
-    public void delete(Long id) {
-        repository.delete(getOrThrow(id));
-    }
-
-    private Transaction getOrThrow(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new TransactionNotFoundException(id));
-    }
-
-    private void validateAmount(BigDecimal amount) {
-        if (amount.signum() == 0) {
-            throw new IllegalArgumentException("Amount cannot be zero");
+        public List<TransactionResponse> findAll(Long userId) {
+            return repository.findAllByUserIdOrderByDateDescIdDesc(userId).stream()
+                    .map(TransactionResponse::from)
+                    .toList();
         }
-    }
+
+        public TransactionResponse findById(Long id, Long userId) {
+            return TransactionResponse.from(getOrThrow(id, userId));
+        }
+
+        @Transactional
+        public TransactionResponse create(TransactionRequest request, Long userId) {
+            validateAmount(request.amount());
+
+            // Until automatic categorisation exists (Milestone 4), uncategorised
+            // transactions fall back to OTHER.
+            Category category = request.category() != null ? request.category() : Category.OTHER;
+            CategorySource source = request.category() != null ? CategorySource.USER : CategorySource.RULE;
+
+            User owner = userRepository.getReferenceById(userId);
+            Transaction transaction = new Transaction(
+                    owner, request.date(), request.description().trim(), request.amount(), category, source);
+
+            return TransactionResponse.from(repository.save(transaction));
+        }
+
+        @Transactional
+        public TransactionResponse update(Long id, TransactionRequest request, Long userId) {
+            validateAmount(request.amount());
+            Transaction transaction = getOrThrow(id, userId);
+            transaction.updateDetails(request.date(), request.description().trim(), request.amount());
+            if (request.category() != null) {
+                transaction.changeCategory(request.category(), CategorySource.USER);
+            }
+            return TransactionResponse.from(transaction);
+        }
+
+        @Transactional
+        public void delete(Long id, Long userId) {
+            repository.delete(getOrThrow(id, userId));
+        }
+
+        private Transaction getOrThrow(Long id, Long userId) {
+            return repository.findByIdAndUserId(id, userId)
+                    .orElseThrow(() -> new TransactionNotFoundException(id));
+        }
+
+        private void validateAmount(BigDecimal amount) {
+            if (amount.signum() == 0) {
+                throw new IllegalArgumentException("Amount cannot be zero");
+            }
+        }
 }

@@ -13,6 +13,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 @Table(name = "transactions")
@@ -21,6 +24,10 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDate date;
@@ -46,8 +53,9 @@ public class Transaction {
         // Required by JPA
     }
 
-    public Transaction(LocalDate date, String description, BigDecimal amount,
-                       Category category, CategorySource categorySource) {
+    public Transaction(User user, LocalDate date, String description, BigDecimal amount,
+                   Category category, CategorySource categorySource) {
+        this.user = user;
         this.date = date;
         this.description = description;
         this.amount = amount;

@@ -1,148 +1,97 @@
-### Create: Rent (with category)
-POST http://localhost:8080/api/transactions
-Content-Type: application/json
+### ============ SETUP ============
 
-{
-  "date": "2026-09-02",
-  "description": "Rent",
-  "amount": -7500.00,
-  "category": "HOUSING"
-}
+### Health (public)
+GET http://localhost:8080/api/health
 
-### Create: Salary
-POST http://localhost:8080/api/transactions
-Content-Type: application/json
-
-{
-  "date": "2026-09-01",
-  "description": "Salary",
-  "amount": 25000.00,
-  "category": "INCOME"
-}
-
-### Create: Checkers (no category, so it falls back to OTHER)
-POST http://localhost:8080/api/transactions
-Content-Type: application/json
-
-{
-  "date": "2026-09-03",
-  "description": "Checkers groceries",
-  "amount": -1250.50
-}
-
-### List all (newest first)
-GET http://localhost:8080/api/transactions
-
-### Get one
-GET http://localhost:8080/api/transactions/1
-
-### Update: re-categorise Checkers as GROCERIES
-PUT http://localhost:8080/api/transactions/3
-Content-Type: application/json
-
-{
-  "date": "2026-09-03",
-  "description": "Checkers groceries",
-  "amount": -1250.50,
-  "category": "GROCERIES"
-}
-
-### Delete: Salary
-DELETE http://localhost:8080/api/transactions/2
-
-### Error: get a deleted transaction (expect 404)
-GET http://localhost:8080/api/transactions/2
-
-### Error: missing description (expect 400 with field errors)
-POST http://localhost:8080/api/transactions
-Content-Type: application/json
-
-{
-  "date": "2026-09-05",
-  "description": "",
-  "amount": -50.00
-}
-
-### Error: zero amount (expect 400)
-POST http://localhost:8080/api/transactions
-Content-Type: application/json
-
-{
-  "date": "2026-09-05",
-  "description": "Mistake",
-  "amount": 0
-}
-
-### Register: Thato
+### Register Thato (409 if already registered, which is fine)
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
-{
-  "fullName": "Thato Khonkhe",
-  "email": "thato@example.com",
-  "password": "Password123"
-}
+{ "fullName": "Thato Khonkhe", "email": "thato@example.com", "password": "Password123" }
 
-### Register: same email again (expect 409)
+### Register Lerato (409 if already registered, which is fine)
 POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
-{
-  "fullName": "Thato Again",
-  "email": "THATO@example.com",
-  "password": "Password123"
-}
+{ "fullName": "Lerato Mokoena", "email": "lerato@example.com", "password": "Password123" }
 
-### Register: second user with the SAME password (compare the hashes)
-POST http://localhost:8080/api/auth/register
-Content-Type: application/json
-
-{
-  "fullName": "Lerato Mokoena",
-  "email": "lerato@example.com",
-  "password": "Password123"
-}
-
-### Register: invalid input (expect 400 with three field errors)
-POST http://localhost:8080/api/auth/register
-Content-Type: application/json
-
-{
-  "fullName": "",
-  "email": "not-an-email",
-  "password": "short"
-}
-
-### 1. Transactions WITHOUT a token (expect 401)
-GET http://localhost:8080/api/transactions
-
-### 2. Login with the WRONG password (expect 401)
+### Login as Thato
+# @name thato
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
-{
-  "email": "thato@example.com",
-  "password": "WrongPassword"
-}
+{ "email": "thato@example.com", "password": "Password123" }
 
-### 3. Login correctly (saves the token for the next requests)
-# @name login
+### Login as Lerato
+# @name lerato
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
-{
-  "email": "thato@example.com",
-  "password": "Password123"
-}
+{ "email": "lerato@example.com", "password": "Password123" }
 
-### 4. Who am I? (uses the token)
-GET http://localhost:8080/api/auth/me
-Authorization: Bearer {{login.response.body.$.accessToken}}
+### ============ THATO'S DATA ============
 
-### 5. Transactions WITH the token (expect 200)
+### Thato creates Rent
+# @name rent
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-09-02", "description": "Rent", "amount": -7500.00, "category": "HOUSING" }
+
+### Thato creates Salary
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-09-01", "description": "Salary", "amount": 25000.00, "category": "INCOME" }
+
+### Thato lists his transactions (expect 2)
 GET http://localhost:8080/api/transactions
-Authorization: Bearer {{login.response.body.$.accessToken}}
+Authorization: Bearer {{thato.response.body.$.accessToken}}
 
-### 6. A tampered token (expect 401)
+### ============ LERATO'S DATA ============
+
+### Lerato creates Groceries
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-09-05", "description": "Pick n Pay groceries", "amount": -900.00, "category": "GROCERIES" }
+
+### Lerato lists her transactions (expect ONLY her 1)
 GET http://localhost:8080/api/transactions
-Authorization: Bearer abc.def.ghi
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+
+### ============ SECURITY CHECKS ============
+
+### Lerato tries to READ Thato's Rent (expect 404)
+GET http://localhost:8080/api/transactions/{{rent.response.body.$.id}}
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+
+### Lerato tries to DELETE Thato's Rent (expect 404)
+DELETE http://localhost:8080/api/transactions/{{rent.response.body.$.id}}
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+
+### Thato can still read his Rent (expect 200)
+GET http://localhost:8080/api/transactions/{{rent.response.body.$.id}}
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
+### No token at all (expect 401)
+GET http://localhost:8080/api/transactions
+
+### ============ VALIDATION CHECKS ============
+
+### Zero amount (expect 400)
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-09-05", "description": "Mistake", "amount": 0 }
+
+### Missing description (expect 400 with field errors)
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-09-05", "description": "", "amount": -50.00 }

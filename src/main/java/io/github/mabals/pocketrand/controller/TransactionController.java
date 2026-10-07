@@ -18,6 +18,9 @@ import io.github.mabals.pocketrand.dto.TransactionResponse;
 import io.github.mabals.pocketrand.service.TransactionService;
 import jakarta.validation.Valid;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
@@ -28,30 +31,36 @@ public class TransactionController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<TransactionResponse> getAll() {
-        return service.findAll();
+        @GetMapping
+    public List<TransactionResponse> getAll(@AuthenticationPrincipal Jwt jwt) {
+        return service.findAll(currentUserId(jwt));
     }
 
     @GetMapping("/{id}")
-    public TransactionResponse getById(@PathVariable Long id) {
-        return service.findById(id);
+    public TransactionResponse getById(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        return service.findById(id, currentUserId(jwt));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse create(@Valid @RequestBody TransactionRequest request) {
-        return service.create(request);
+    public TransactionResponse create(@Valid @RequestBody TransactionRequest request,
+                                      @AuthenticationPrincipal Jwt jwt) {
+        return service.create(request, currentUserId(jwt));
     }
 
     @PutMapping("/{id}")
-    public TransactionResponse update(@PathVariable Long id, @Valid @RequestBody TransactionRequest request) {
-        return service.update(id, request);
+    public TransactionResponse update(@PathVariable Long id, @Valid @RequestBody TransactionRequest request,
+                                      @AuthenticationPrincipal Jwt jwt) {
+        return service.update(id, request, currentUserId(jwt));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        service.delete(id, currentUserId(jwt));
+    }
+
+    private Long currentUserId(Jwt jwt) {
+        return Long.valueOf(jwt.getSubject());
     }
 }
