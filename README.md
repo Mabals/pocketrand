@@ -18,7 +18,7 @@ Personal bank statements are also usually downloaded as **PDFs**, not spreadshee
 | Feature | Status |
 |---|---|
 | Project setup and health endpoint | ✅ Done |
-| Transactions API (create, view, edit, delete) with PostgreSQL | 🔨 In progress |
+| Transactions API (create, view, edit, delete) with PostgreSQL | ✅ Done |
 | User accounts with secure login (Spring Security + JWT) | ⏳ Planned |
 | Statement import: CSV and PDF | ⏳ Planned |
 | Automatic categorisation (keyword rules + AI) | ⏳ Planned |
