@@ -112,3 +112,37 @@ Content-Type: application/json
   "email": "not-an-email",
   "password": "short"
 }
+
+### 1. Transactions WITHOUT a token (expect 401)
+GET http://localhost:8080/api/transactions
+
+### 2. Login with the WRONG password (expect 401)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "thato@example.com",
+  "password": "WrongPassword"
+}
+
+### 3. Login correctly (saves the token for the next requests)
+# @name login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "thato@example.com",
+  "password": "Password123"
+}
+
+### 4. Who am I? (uses the token)
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 5. Transactions WITH the token (expect 200)
+GET http://localhost:8080/api/transactions
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 6. A tampered token (expect 401)
+GET http://localhost:8080/api/transactions
+Authorization: Bearer abc.def.ghi
