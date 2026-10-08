@@ -1,0 +1,35 @@
+import {
+  ArrowLeftRight,
+  Banknote,
+  Car,
+  Clapperboard,
+  GraduationCap,
+  HeartPulse,
+  House,
+  Receipt,
+  Shapes,
+  ShoppingBag,
+  ShoppingCart,
+  Smartphone,
+  UtensilsCrossed,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react'
+import type { Category } from '../types'
+
+export const CATEGORY_STYLES: Record<Category, { color: string; icon: LucideIcon }> = {
+  INCOME: { color: '#10b981', icon: Banknote },
+  HOUSING: { color: '#059669', icon: House },
+  GROCERIES: { color: '#0ea5e9', icon: ShoppingCart },
+  TRANSPORT: { color: '#f59e0b', icon: Car },
+  AIRTIME_DATA: { color: '#8b5cf6', icon: Smartphone },
+  EATING_OUT: { color: '#f43f5e', icon: UtensilsCrossed },
+  ENTERTAINMENT: { color: '#ec4899', icon: Clapperboard },
+  UTILITIES: { color: '#eab308', icon: Zap },
+  HEALTH: { color: '#14b8a6', icon: HeartPulse },
+  EDUCATION: { color: '#6366f1', icon: GraduationCap },
+  SHOPPING: { color: '#d946ef', icon: ShoppingBag },
+  TRANSFERS: { color: '#64748b', icon: ArrowLeftRight },
+  FEES: { color: '#78716c', icon: Receipt },
+  OTHER: { color: '#94a3b8', icon: Shapes },
+}

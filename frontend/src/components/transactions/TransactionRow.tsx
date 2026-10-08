@@ -4,6 +4,7 @@ import { api, ApiError } from '../../api/client'
 import type { Category, CategorySource, Transaction } from '../../types'
 import { CATEGORY_OPTIONS } from '../../utils/categories'
 import { formatDate, formatRands } from '../../utils/format'
+import CategoryIcon from '../CategoryIcon'
 
 const SOURCE_BADGES: Record<CategorySource, { label: string; className: string; title: string }> = {
   RULE: { label: 'Rule', className: 'bg-slate-100 text-slate-600', title: 'Categorised by a keyword rule' },
@@ -62,8 +63,13 @@ export default function TransactionRow({ transaction, onChanged }: TransactionRo
     <tr className={saving ? 'opacity-50' : ''}>
       <td className="whitespace-nowrap px-4 py-3 text-slate-500">{formatDate(transaction.date)}</td>
       <td className="px-4 py-3">
-        <p className="font-medium text-slate-900">{transaction.description}</p>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        <div className="flex items-center gap-3">
+          <CategoryIcon category={transaction.category} />
+          <div>
+            <p className="font-medium text-slate-900">{transaction.description}</p>
+            {error && <p className="text-xs text-red-600">{error}</p>}
+          </div>
+        </div>
       </td>
       <td className="px-4 py-3">
         <select

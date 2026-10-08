@@ -1,23 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { Receipt, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { Receipt } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { useApi } from '../hooks/useApi'
-import type { MonthlySummary, SpendingTips } from '../types'
+import type { MonthlySummary, SpendingTips, Transaction } from '../types'
 import { currentMonth, formatMonth, formatRands } from '../utils/format'
-import StatCard from '../components/dashboard/StatCard'
-import CategoryChart from '../components/dashboard/CategoryChart'
+
+import MoneyHero from '../components/dashboard/MoneyHero'
+import SpendingTrend from '../components/dashboard/SpendingTrend'
+import SpendingBreakdown from '../components/dashboard/SpendingBreakdown'
+
 import TipsCard from '../components/dashboard/TipsCard'
 import TopExpenses from '../components/dashboard/TopExpenses'
 import MonthPicker from '../components/MonthPicker'
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 
-function changeNote(percent: number | null): string | undefined {
-  if (percent === null) {
-    return undefined
-  }
-  return `${percent > 0 ? 'Up' : 'Down'} ${Math.abs(percent)}% on last month`
-}
+
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -26,6 +24,7 @@ export default function DashboardPage() {
   const summary = useApi<MonthlySummary>(`/summary?month=${month}`)
   const hasData = (summary.data?.transactionCount ?? 0) > 0
   const tips = useApi<SpendingTips>(hasData ? `/summary/tips?month=${month}` : null)
+  const transactions = useApi<Transaction[]>(hasData ? `/transactions?month=${month}` : null)
 
   const firstName = user?.fullName.split(' ')[0]
 
@@ -61,36 +60,26 @@ export default function DashboardPage() {
 
       {summary.data && hasData && (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <StatCard
-              label="Income"
-              value={formatRands(summary.data.income)}
-              tone="positive"
-              icon={<TrendingUp size={18} />}
-            />
-            <StatCard
-              label="Spending"
-              value={formatRands(summary.data.expenses)}
-              tone="negative"
-              icon={<TrendingDown size={18} />}
-              note={changeNote(summary.data.expenseChangePercent)}
-            />
-            <StatCard
-              label="Left over"
-              value={formatRands(summary.data.net)}
-              tone={summary.data.net >= 0 ? 'positive' : 'negative'}
-              icon={<Wallet size={18} />}
-            />
-          </div>
-
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <CategoryChart categories={summary.data.spendingByCategory} />
+              <MoneyHero
+                income={summary.data.income}
+                expenses={summary.data.expenses}
+                net={summary.data.net}
+                changePercent={summary.data.expenseChangePercent}
+              />
             </div>
             <TipsCard tips={tips.data} loading={tips.loading} error={tips.error} />
           </div>
 
-          <TopExpenses expenses={summary.data.topExpenses} />
+          {transactions.data && <SpendingTrend month={month} transactions={transactions.data} />}
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <SpendingBreakdown categories={summary.data.spendingByCategory} total={summary.data.expenses} />
+            </div>
+            <TopExpenses expenses={summary.data.topExpenses} />
+          </div>
         </>
       )}
     </div>
