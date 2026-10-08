@@ -22,10 +22,12 @@ public class TransactionService {
 
         private final TransactionRepository repository;
         private final UserRepository userRepository;
+        private final KeywordCategoriser categoriser;
 
-        public TransactionService(TransactionRepository repository, UserRepository userRepository) {
+        public TransactionService(TransactionRepository repository, UserRepository userRepository, KeywordCategoriser categoriser) {
             this.repository = repository;
             this.userRepository = userRepository;
+            this.categoriser = categoriser;
         }
 
         public List<TransactionResponse> findAll(Long userId) {
@@ -43,9 +45,15 @@ public class TransactionService {
             validateAmount(request.amount());
 
             // Until automatic categorisation exists (Milestone 4), uncategorised
-            // transactions fall back to OTHER.
-            Category category = request.category() != null ? request.category() : Category.OTHER;
-            CategorySource source = request.category() != null ? CategorySource.USER : CategorySource.RULE;
+            Category category;
+            CategorySource source;
+            if (request.category() != null) {
+                category = request.category();
+                source = CategorySource.USER;
+            } else {
+                category = categoriser.categorise(request.description(), request.amount()).orElse(Category.OTHER);
+                source = CategorySource.RULE;
+            }
 
             User owner = userRepository.getReferenceById(userId);
             Transaction transaction = new Transaction(
