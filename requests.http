@@ -248,3 +248,14 @@ Content-Type: application/json
 
 { "date": "2026-09-05", "description": "", "amount": -50.00 }
 
+### AI tips: Lerato, September
+GET http://localhost:8080/api/summary/tips?month=2026-09
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+
+### AI tips: Thato, September (he has budgets, so tips may mention them)
+GET http://localhost:8080/api/summary/tips?month=2026-09
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
+### Tips for an empty month
+GET http://localhost:8080/api/summary/tips?month=2025-01
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
