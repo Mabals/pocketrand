@@ -59,7 +59,7 @@ public class TransactionController {
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ImportResult importStatement(@RequestParam("file") MultipartFile file,
                                     @AuthenticationPrincipal Jwt jwt) {
-        return importService.importCsv(file, currentUserId(jwt));
+        return importService.importStatement(file, currentUserId(jwt));
     }
 
     @PutMapping("/{id}")

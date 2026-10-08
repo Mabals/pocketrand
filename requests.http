@@ -157,6 +157,30 @@ Content-Type: application/json
 
 { "email": "lerato@example.com", "password": "Password123" }
 
+### Import a PDF statement (as Lerato)
+POST http://localhost:8080/api/transactions/import
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=PocketRandBoundary
+
+--PocketRandBoundary
+Content-Disposition: form-data; name="file"; filename="sample-statement.pdf"
+Content-Type: application/pdf
+
+< ./samples/sample-statement.pdf
+--PocketRandBoundary--
+
+### Wrong file type (expect 400)
+POST http://localhost:8080/api/transactions/import
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=PocketRandBoundary
+
+--PocketRandBoundary
+Content-Disposition: form-data; name="file"; filename="sample-statement.txt"
+Content-Type: text/plain
+
+< ./samples/sample-statement.txt
+--PocketRandBoundary--
+
 ### ============ THATO'S DATA ============
 
 ### Thato creates Rent

@@ -68,4 +68,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(400, "Bad Request", message, Map.of()));
     }
+
+    @ExceptionHandler(AiUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleAiUnavailable(AiUnavailableException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new ErrorResponse(503, "Service Unavailable", ex.getMessage(), Map.of()));
+    }
 }
