@@ -22,6 +22,18 @@ Content-Type: application/json
 
 { "email": "thato@example.com", "password": "Password123" }
 
+### Import a statement CSV (as Thato)
+POST http://localhost:8080/api/transactions/import
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=PocketRandBoundary
+
+--PocketRandBoundary
+Content-Disposition: form-data; name="file"; filename="statement.csv"
+Content-Type: text/csv
+
+< ./samples/statement.csv
+--PocketRandBoundary--
+
 ### Auto-category: Uber Eats (expect EATING_OUT, source RULE)
 POST http://localhost:8080/api/transactions
 Authorization: Bearer {{thato.response.body.$.accessToken}}

@@ -25,4 +25,17 @@ public enum Category {
     public String getLabel() {
         return label;
     }
+
+    public static Category fromText(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        String value = text.trim();
+        for (Category category : values()) {
+            if (category.name().equalsIgnoreCase(value) || category.label.equalsIgnoreCase(value)) {
+                return category;
+            }
+        }
+        return null;
+    }
 }

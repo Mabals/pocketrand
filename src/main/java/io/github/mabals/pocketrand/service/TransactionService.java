@@ -45,19 +45,12 @@ public class TransactionService {
             validateAmount(request.amount());
 
             // Until automatic categorisation exists (Milestone 4), uncategorised
-            Category category;
-            CategorySource source;
-            if (request.category() != null) {
-                category = request.category();
-                source = CategorySource.USER;
-            } else {
-                category = categoriser.categorise(request.description(), request.amount()).orElse(Category.OTHER);
-                source = CategorySource.RULE;
-            }
+            KeywordCategoriser.CategoryDecision decision =
+                    categoriser.decide(request.category(), request.description(), request.amount());
 
             User owner = userRepository.getReferenceById(userId);
-            Transaction transaction = new Transaction(
-                    owner, request.date(), request.description().trim(), request.amount(), category, source);
+            Transaction transaction = new Transaction(owner, request.date(), request.description().trim(),
+                    request.amount(), decision.category(), decision.source());
 
             return TransactionResponse.from(repository.save(transaction));
         }

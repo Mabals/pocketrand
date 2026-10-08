@@ -1,5 +1,7 @@
 package io.github.mabals.pocketrand.repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +14,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findAllByUserIdOrderByDateDescIdDesc(Long userId);
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
+
+    boolean existsByUserIdAndDateAndDescriptionAndAmount(Long userId, LocalDate date,
+                                                      String description, BigDecimal amount);
 }

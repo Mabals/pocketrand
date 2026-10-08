@@ -10,13 +10,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import io.github.mabals.pocketrand.dto.ImportResult;
 import io.github.mabals.pocketrand.dto.TransactionRequest;
 import io.github.mabals.pocketrand.dto.TransactionResponse;
+import io.github.mabals.pocketrand.service.StatementImportService;
 import io.github.mabals.pocketrand.service.TransactionService;
 import jakarta.validation.Valid;
+
+import org.springframework.http.MediaType;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -26,12 +32,14 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public class TransactionController {
 
     private final TransactionService service;
+    private final StatementImportService importService;
 
-    public TransactionController(TransactionService service) {
+    public TransactionController(TransactionService service, StatementImportService importService) {
         this.service = service;
+        this.importService = importService;
     }
 
-        @GetMapping
+    @GetMapping
     public List<TransactionResponse> getAll(@AuthenticationPrincipal Jwt jwt) {
         return service.findAll(currentUserId(jwt));
     }
@@ -46,6 +54,12 @@ public class TransactionController {
     public TransactionResponse create(@Valid @RequestBody TransactionRequest request,
                                       @AuthenticationPrincipal Jwt jwt) {
         return service.create(request, currentUserId(jwt));
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImportResult importStatement(@RequestParam("file") MultipartFile file,
+                                    @AuthenticationPrincipal Jwt jwt) {
+        return importService.importCsv(file, currentUserId(jwt));
     }
 
     @PutMapping("/{id}")

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import io.github.mabals.pocketrand.model.Category;
 
+import io.github.mabals.pocketrand.model.CategorySource;
+
 @Component
 public class KeywordCategoriser {
 
@@ -50,6 +52,17 @@ public class KeywordCategoriser {
         }
         // Money coming in that no rule recognises is treated as income.
         return amount.signum() > 0 ? Optional.of(Category.INCOME) : Optional.empty();
+    }
+
+    public record CategoryDecision(Category category, CategorySource source) {
+    }
+
+    public CategoryDecision decide(Category requested, String description, BigDecimal amount) {
+        if (requested != null) {
+            return new CategoryDecision(requested, CategorySource.USER);
+        }
+        Category category = categorise(description, amount).orElse(Category.OTHER);
+        return new CategoryDecision(category, CategorySource.RULE);
     }
 
     private static Rule rule(Category category, String... keywords) {
