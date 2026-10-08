@@ -81,6 +81,63 @@ Content-Type: application/json
 
 { "date": "2026-09-08", "description": "Uber gift card", "amount": -200.00, "category": "SHOPPING" }
 
+### Budget: Groceries R2,000
+PUT http://localhost:8080/api/budgets/GROCERIES
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 2000.00 }
+
+### Budget: Housing R7,000
+PUT http://localhost:8080/api/budgets/HOUSING
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 7000.00 }
+
+### Budget: Entertainment R500
+PUT http://localhost:8080/api/budgets/ENTERTAINMENT
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 500.00 }
+
+### My budgets for September
+GET http://localhost:8080/api/budgets?month=2026-09
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
+### Change Groceries to R2,500 (PUT again replaces it)
+PUT http://localhost:8080/api/budgets/GROCERIES
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 2500.00 }
+
+### Income budget (expect 400)
+PUT http://localhost:8080/api/budgets/INCOME
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 1000.00 }
+
+### Negative limit (expect 400)
+PUT http://localhost:8080/api/budgets/GROCERIES
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": -5 }
+
+### Unknown category (expect 400)
+PUT http://localhost:8080/api/budgets/FOOD
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "monthlyLimit": 100.00 }
+
+### Delete Entertainment (expect 204), then send again (expect 404)
+DELETE http://localhost:8080/api/budgets/ENTERTAINMENT
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
 ### Login as Lerato
 # @name lerato
 POST http://localhost:8080/api/auth/login
