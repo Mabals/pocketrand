@@ -17,4 +17,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     boolean existsByUserIdAndDateAndDescriptionAndAmount(Long userId, LocalDate date,
                                                       String description, BigDecimal amount);
+
+    List<Transaction> findAllByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 }

@@ -22,6 +22,32 @@ Content-Type: application/json
 
 { "email": "thato@example.com", "password": "Password123" }
 
+### Summary: September (Thato)
+GET http://localhost:8080/api/summary?month=2026-09
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
+### Add August data for the comparison: rent
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-08-02", "description": "RENT PAYMENT", "amount": -7500.00 }
+
+### Add August data for the comparison: groceries
+POST http://localhost:8080/api/transactions
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "date": "2026-08-10", "description": "GROCERIES", "amount": -1000.00 }
+
+### Bad month format (expect 400)
+GET http://localhost:8080/api/summary?month=September
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+
+### Lerato's September (only her data)
+GET http://localhost:8080/api/summary?month=2026-09
+Authorization: Bearer {{lerato.response.body.$.accessToken}}
+
 ### Import a statement CSV (as Thato)
 POST http://localhost:8080/api/transactions/import
 Authorization: Bearer {{thato.response.body.$.accessToken}}
@@ -128,3 +154,4 @@ Authorization: Bearer {{thato.response.body.$.accessToken}}
 Content-Type: application/json
 
 { "date": "2026-09-05", "description": "", "amount": -50.00 }
+
