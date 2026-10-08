@@ -3,7 +3,7 @@
 **An AI-powered personal finance app for South Africans.**
 Upload your bank statement (PDF or CSV), and PocketRand categorises your spending automatically, shows monthly insights, tracks budgets, and estimates your income tax.
 
-> 🚧 **Status: in active development.** Follow the progress in the commit history.
+> **Status: in active development.** Follow the progress in the commit history.
 
 ---
 
@@ -20,7 +20,7 @@ Personal bank statements are also usually downloaded as **PDFs**, not spreadshee
 | Project setup and health endpoint | ✅ Done |
 | Transactions API (create, view, edit, delete) with PostgreSQL | ✅ Done |
 | User accounts with secure login (Spring Security + JWT) | ✅ Done |
-| Statement import: CSV and PDF | ⏳ Planned |
+| Statement import: CSV and PDF | ✅ Done |
 | Automatic categorisation (keyword rules + AI) | ⏳ Planned |
 | Monthly insights: totals, spending by category, top expenses | ⏳ Planned |
 | Budgets with near-limit and over-limit warnings | ⏳ Planned |
