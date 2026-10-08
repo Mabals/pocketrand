@@ -2,10 +2,12 @@ package io.github.mabals.pocketrand.repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import io.github.mabals.pocketrand.dto.TransactionResponse;
 import io.github.mabals.pocketrand.model.Transaction;
 
 import java.util.Optional;
@@ -19,4 +21,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                                       String description, BigDecimal amount);
 
     List<Transaction> findAllByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
+
+    List<Transaction> findAllByUserIdAndDateBetweenOrderByDateDescIdDesc(Long userId, LocalDate start, LocalDate end);
+
+    
 }

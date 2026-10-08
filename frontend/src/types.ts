@@ -64,3 +64,10 @@ export type SpendingTips = {
   aiGenerated: boolean
 }
 
+export type ImportResult = {
+  imported: number
+  skipped: number
+  duplicates: number
+  errors: { line: number; reason: string }[]
+}
+

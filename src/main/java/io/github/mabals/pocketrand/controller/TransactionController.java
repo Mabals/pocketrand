@@ -20,7 +20,10 @@ import io.github.mabals.pocketrand.dto.TransactionRequest;
 import io.github.mabals.pocketrand.dto.TransactionResponse;
 import io.github.mabals.pocketrand.service.StatementImportService;
 import io.github.mabals.pocketrand.service.TransactionService;
+import io.github.mabals.pocketrand.util.MonthParser;
 import jakarta.validation.Valid;
+
+
 
 import org.springframework.http.MediaType;
 
@@ -40,8 +43,12 @@ public class TransactionController {
     }
 
     @GetMapping
-    public List<TransactionResponse> getAll(@AuthenticationPrincipal Jwt jwt) {
-        return service.findAll(currentUserId(jwt));
+    public List<TransactionResponse> getAll(@RequestParam(required = false) String month,
+                                            @AuthenticationPrincipal Jwt jwt) {
+        if (month == null || month.isBlank()) {
+            return service.findAll(currentUserId(jwt));
+        }
+        return service.findForMonth(currentUserId(jwt), MonthParser.parseOrCurrent(month));
     }
 
     @GetMapping("/{id}")

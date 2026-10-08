@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import PlaceholderPage from './pages/PlaceholderPage'
 import RegisterPage from './pages/RegisterPage'
+import TransactionsPage from './pages/TransactionsPage'
 
 export default function App() {
   return (
@@ -15,7 +16,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/transactions" element={<PlaceholderPage title="Transactions" />} />
+            <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/budgets" element={<PlaceholderPage title="Budgets" />} />
             <Route path="/tax" element={<PlaceholderPage title="Tax estimate" />} />
           </Route>

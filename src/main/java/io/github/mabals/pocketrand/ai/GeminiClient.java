@@ -12,12 +12,17 @@ import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+
 @Component
 public class GeminiClient {
 
     private final RestClient restClient;
     private final String apiKey;
     private final String model;
+    private static final int MAX_ATTEMPTS = 3;
 
     public GeminiClient(@Value("${pocketrand.gemini.base-url}") String baseUrl,
                         @Value("${pocketrand.gemini.api-key}") String apiKey,
@@ -46,6 +51,22 @@ public class GeminiClient {
                         "responseSchema", responseSchema,
                         "temperature", 0));
 
+        HttpStatusCodeException lastError = null;
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            try {
+                return send(body);
+            } catch (HttpServerErrorException | HttpClientErrorException.TooManyRequests e) {
+                // Temporary problems (5xx, or 429 rate limit): wait, then try again
+                lastError = e;
+                if (attempt < MAX_ATTEMPTS) {
+                    pause(Duration.ofSeconds(2L * attempt));
+                }
+            }
+        }
+        throw lastError;
+    }
+
+    private String send(Map<String, Object> body) {
         GeminiResponse response = restClient.post()
                 .uri("/models/{model}:generateContent", model)
                 .header("x-goog-api-key", apiKey)
@@ -58,6 +79,15 @@ public class GeminiClient {
             throw new IllegalStateException("Gemini returned no answer");
         }
         return response.candidates().getFirst().content().parts().getFirst().text();
+    }
+
+    private static void pause(Duration duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting to retry", e);
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
