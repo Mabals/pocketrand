@@ -71,3 +71,33 @@ export type ImportResult = {
   errors: { line: number; reason: string }[]
 }
 
+export type BudgetStatus = 'ON_TRACK' | 'NEAR_LIMIT' | 'OVER_LIMIT'
+
+export type Budget = {
+  category: Category
+  label: string
+  monthlyLimit: number
+  spent: number
+  remaining: number
+  percentUsed: number
+  status: BudgetStatus
+}
+
+export type SalaryPeriod = 'MONTHLY' | 'ANNUAL'
+
+export type TaxEstimate = {
+  taxYear: number
+  annualGross: number
+  monthlyGross: number
+  annualTaxBeforeRebates: number
+  rebates: number
+  annualTax: number
+  monthlyTax: number
+  monthlyUif: number
+  monthlyTakeHome: number
+  annualTakeHome: number
+  effectiveRatePercent: number
+  marginalRatePercent: number
+  note: string
+}
+
