@@ -21,14 +21,15 @@ import io.github.mabals.pocketrand.model.User;
 public class TransactionService {
 
         private final TransactionRepository repository;
-        private final UserRepository userRepository;
-        private final KeywordCategoriser categoriser;
+    private final UserRepository userRepository;
+    private final CategorisationService categorisationService;
 
-        public TransactionService(TransactionRepository repository, UserRepository userRepository, KeywordCategoriser categoriser) {
-            this.repository = repository;
-            this.userRepository = userRepository;
-            this.categoriser = categoriser;
-        }
+    public TransactionService(TransactionRepository repository, UserRepository userRepository,
+                            CategorisationService categorisationService) {
+        this.repository = repository;
+        this.userRepository = userRepository;
+        this.categorisationService = categorisationService;
+    }
 
         public List<TransactionResponse> findAll(Long userId) {
             return repository.findAllByUserIdOrderByDateDescIdDesc(userId).stream()
@@ -46,7 +47,7 @@ public class TransactionService {
 
             // Until automatic categorisation exists (Milestone 4), uncategorised
             KeywordCategoriser.CategoryDecision decision =
-                    categoriser.decide(request.category(), request.description(), request.amount());
+                    categorisationService.decide(request.category(), request.description(), request.amount());
 
             User owner = userRepository.getReferenceById(userId);
             Transaction transaction = new Transaction(owner, request.date(), request.description().trim(),

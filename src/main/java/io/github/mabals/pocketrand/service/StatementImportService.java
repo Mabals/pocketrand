@@ -29,14 +29,14 @@ public class StatementImportService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
-    private final KeywordCategoriser categoriser;
+    private final CategorisationService categorisationService;
 
     public StatementImportService(TransactionRepository transactionRepository,
-                                  UserRepository userRepository,
-                                  KeywordCategoriser categoriser) {
+                                UserRepository userRepository,
+                                CategorisationService categorisationService) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
-        this.categoriser = categoriser;
+        this.categorisationService = categorisationService;
     }
 
     private record ParsedRow(LocalDate date, String description, BigDecimal amount, Category category) {
@@ -49,10 +49,11 @@ public class StatementImportService {
 
         List<ImportResult.ImportError> errors = new ArrayList<>();
         Set<String> seenInFile = new HashSet<>();
-        int imported = 0;
+        List<ParsedRow> rowsToSave = new ArrayList<>();
         int duplicates = 0;
 
-        for (int i = 1; i < lines.size(); i++) {          // start at 1: skip the header row
+        // Pass 1: parse and check every row
+        for (int i = 1; i < lines.size(); i++) {
             int lineNumber = i + 1;
             String line = lines.get(i);
             if (line.isBlank()) {
@@ -60,26 +61,35 @@ public class StatementImportService {
             }
             try {
                 ParsedRow row = parseRow(line);
-
                 String key = row.date() + "|" + row.description() + "|" + row.amount();
                 boolean duplicateInFile = !seenInFile.add(key);
                 boolean duplicateInDatabase = transactionRepository.existsByUserIdAndDateAndDescriptionAndAmount(
                         userId, row.date(), row.description(), row.amount());
                 if (duplicateInFile || duplicateInDatabase) {
                     duplicates++;
-                    continue;
+                } else {
+                    rowsToSave.add(row);
                 }
-
-                KeywordCategoriser.CategoryDecision decision =
-                        categoriser.decide(row.category(), row.description(), row.amount());
-                transactionRepository.save(new Transaction(owner, row.date(), row.description(),
-                        row.amount(), decision.category(), decision.source()));
-                imported++;
             } catch (IllegalArgumentException e) {
                 errors.add(new ImportResult.ImportError(lineNumber, e.getMessage()));
             }
         }
-        return new ImportResult(imported, errors.size(), duplicates, errors);
+
+        // Pass 2: categorise all valid rows together (rules first, then one AI request)
+        List<CategorisationService.Input> inputs = rowsToSave.stream()
+                .map(row -> new CategorisationService.Input(row.category(), row.description(), row.amount()))
+                .toList();
+        List<KeywordCategoriser.CategoryDecision> decisions = categorisationService.decideAll(inputs);
+
+        // Pass 3: save
+        for (int i = 0; i < rowsToSave.size(); i++) {
+            ParsedRow row = rowsToSave.get(i);
+            KeywordCategoriser.CategoryDecision decision = decisions.get(i);
+            transactionRepository.save(new Transaction(owner, row.date(), row.description(),
+                    row.amount(), decision.category(), decision.source()));
+        }
+
+        return new ImportResult(rowsToSave.size(), errors.size(), duplicates, errors);
     }
 
     private List<String> readLines(MultipartFile file) {

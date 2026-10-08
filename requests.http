@@ -22,6 +22,18 @@ Content-Type: application/json
 
 { "email": "thato@example.com", "password": "Password123" }
 
+### Import AI sample statement (as Thato)
+POST http://localhost:8080/api/transactions/import
+Authorization: Bearer {{thato.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=PocketRandBoundary
+
+--PocketRandBoundary
+Content-Disposition: form-data; name="file"; filename="statement-ai.csv"
+Content-Type: text/csv
+
+< ./samples/statement-ai.csv
+--PocketRandBoundary--
+
 ### Summary: September (Thato)
 GET http://localhost:8080/api/summary?month=2026-09
 Authorization: Bearer {{thato.response.body.$.accessToken}}
