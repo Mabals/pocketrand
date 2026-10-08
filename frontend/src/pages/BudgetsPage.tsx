@@ -6,6 +6,7 @@ import { currentMonth, formatMonth } from '../utils/format'
 import MonthPicker from '../components/MonthPicker'
 import BudgetForm from '../components/budgets/BudgetForm'
 import BudgetCard from '../components/budgets/BudgetCard'
+import Skeleton from '../components/Skeleton'
 
 export default function BudgetsPage() {
   const [month, setMonth] = useState(currentMonth())
@@ -23,7 +24,12 @@ export default function BudgetsPage() {
 
       <BudgetForm onSaved={budgets.reload} />
 
-      {budgets.loading && <p className="text-sm text-slate-500">Loading budgets…</p>}
+      {budgets.loading && (
+        <div className="grid gap-4 sm:grid-cols-2">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+        </div>
+        )}
       {budgets.error && <p className="text-sm text-red-700">{budgets.error}</p>}
 
       {budgets.data && budgets.data.length === 0 && (

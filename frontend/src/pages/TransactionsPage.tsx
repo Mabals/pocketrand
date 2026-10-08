@@ -5,6 +5,7 @@ import { currentMonth, formatMonth } from '../utils/format'
 import MonthPicker from '../components/MonthPicker'
 import UploadCard from '../components/transactions/UploadCard'
 import TransactionRow from '../components/transactions/TransactionRow'
+import Skeleton from '../components/Skeleton'
 
 export default function TransactionsPage() {
   const [month, setMonth] = useState(currentMonth())
@@ -23,7 +24,13 @@ export default function TransactionsPage() {
       <UploadCard onImported={transactions.reload} />
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {transactions.loading && <p className="p-6 text-sm text-slate-500">Loading transactions…</p>}
+        {transactions.loading && (
+          <div className="space-y-3 p-6">
+            {[1, 2, 3, 4, 5].map((row) => (
+              <Skeleton key={row} className="h-10" />
+            ))}
+          </div>
+        )}
 
         {transactions.error && <p className="p-6 text-sm text-red-700">{transactions.error}</p>}
 

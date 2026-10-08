@@ -10,6 +10,7 @@ import CategoryChart from '../components/dashboard/CategoryChart'
 import TipsCard from '../components/dashboard/TipsCard'
 import TopExpenses from '../components/dashboard/TopExpenses'
 import MonthPicker from '../components/MonthPicker'
+import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 
 function changeNote(percent: number | null): string | undefined {
   if (percent === null) {
@@ -38,7 +39,7 @@ export default function DashboardPage() {
         <MonthPicker value={month} onChange={setMonth} />
       </div>
 
-      {summary.loading && <p className="text-slate-500">Loading your summary…</p>}
+      {summary.loading && <DashboardSkeleton />}
 
       {summary.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{summary.error}</p>
