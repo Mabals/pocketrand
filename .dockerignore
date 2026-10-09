@@ -1,0 +1,9 @@
+**/node_modules
+frontend/dist
+target
+src/main/resources/static
+.git
+.vscode
+.idea
+*.log
+local-env.ps1
