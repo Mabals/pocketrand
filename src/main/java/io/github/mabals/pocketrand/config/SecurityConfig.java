@@ -55,10 +55,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/health", "/api/auth/register", "/api/auth/login",
-                        "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/demo").permitAll()
-                .anyRequest().authenticated()
-            )
+            .requestMatchers("/api/health", "/api/auth/register", "/api/auth/login",
+                    "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/demo").permitAll()
+            .requestMatchers("/api/**").authenticated()
+            .anyRequest().permitAll()
+        )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }

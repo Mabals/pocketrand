@@ -33,3 +33,5 @@ build/
 .vscode/
 
 local-env.ps1
+
+src/main/resources/static/

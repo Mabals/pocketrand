@@ -4,7 +4,7 @@ import { Receipt } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import { useApi } from '../hooks/useApi'
 import type { MonthlySummary, SpendingTips, Transaction } from '../types'
-import { currentMonth, formatMonth, formatRands } from '../utils/format'
+import { currentMonth, formatMonth } from '../utils/format'
 
 import MoneyHero from '../components/dashboard/MoneyHero'
 import SpendingTrend from '../components/dashboard/SpendingTrend'
