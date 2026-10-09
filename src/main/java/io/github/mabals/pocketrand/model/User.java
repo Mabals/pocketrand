@@ -30,6 +30,9 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "privacy_accepted_at")
+    private Instant privacyAcceptedAt;
+
     protected User() {
         // Required by JPA
     }
@@ -43,6 +46,14 @@ public class User {
 
     public void changePasswordHash(String newPasswordHash) {
         this.passwordHash = newPasswordHash;
+    }
+
+    public void recordPrivacyConsent(Instant acceptedAt) {
+        this.privacyAcceptedAt = acceptedAt;
+    }
+
+    public Instant getPrivacyAcceptedAt() {
+        return privacyAcceptedAt;
     }
 
     @PrePersist

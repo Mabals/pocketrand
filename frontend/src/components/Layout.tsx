@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet } from 'react-router'
 import { Calculator, LayoutDashboard, LogOut, PiggyBank, ReceiptText, type LucideIcon } from 'lucide-react'
 import { useAuth } from '../auth/useAuth'
 import Logo from './Logo'
@@ -18,6 +18,7 @@ export default function Layout() {
     .slice(0, 2)
     .join('')
     .toUpperCase()
+  const isDemo = user?.email.endsWith('@demo.invalid') ?? false
 
   return (
     <div className="min-h-screen">
@@ -63,10 +64,22 @@ export default function Layout() {
           ))}
         </nav>
       </header>
+      {isDemo && (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+          You're exploring a demo account with sample data. It's deleted automatically after 24 hours.
+        </div>
+      )}
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Outlet />
       </main>
+
+      <footer className="mx-auto max-w-6xl px-4 pb-8 text-xs text-slate-400">
+        <Link to="/privacy" className="hover:text-slate-600 hover:underline">
+          Privacy notice
+        </Link>{' '}
+        · PocketRand is a portfolio project. Please use sample statements while testing.
+      </footer>
     </div>
   )
 }

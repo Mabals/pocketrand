@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
-import { KeyRound, Trash2, UserRound } from 'lucide-react'
+import { Download, KeyRound, Trash2, UserRound } from 'lucide-react'
 import { api, ApiError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
@@ -13,12 +13,18 @@ export default function SettingsPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
+  // Change password
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({})
   const [passwordMessage, setPasswordMessage] = useState<Message | null>(null)
   const [savingPassword, setSavingPassword] = useState(false)
 
+  // Download my data
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState('')
+
+  // Delete account
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteError, setDeleteError] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -47,6 +53,25 @@ export default function SettingsPage() {
       }
     } finally {
       setSavingPassword(false)
+    }
+  }
+
+  async function handleExport() {
+    setExporting(true)
+    setExportError('')
+    try {
+      const data = await api<unknown>('/account/export')
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `pocketrand-data-${new Date().toISOString().slice(0, 10)}.json`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setExportError(err instanceof ApiError ? err.message : 'Could not download your data')
+    } finally {
+      setExporting(false)
     }
   }
 
@@ -80,6 +105,7 @@ export default function SettingsPage() {
         <p className="mt-1 text-slate-500">Manage your account and your data.</p>
       </div>
 
+      {/* Your profile */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="flex items-center gap-2 font-semibold text-slate-900">
           <UserRound size={18} className="text-emerald-600" /> Your profile
@@ -96,6 +122,7 @@ export default function SettingsPage() {
         </dl>
       </section>
 
+      {/* Change password */}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="flex items-center gap-2 font-semibold text-slate-900">
           <KeyRound size={18} className="text-emerald-600" /> Change password
@@ -138,6 +165,26 @@ export default function SettingsPage() {
         </form>
       </section>
 
+      {/* Your data (POPIA: right of access) */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="flex items-center gap-2 font-semibold text-slate-900">
+          <Download size={18} className="text-emerald-600" /> Your data
+        </h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Download everything PocketRand holds about you: your profile, transactions and budgets, as a JSON file.
+        </p>
+        {exportError && <p className="mt-3 text-sm text-red-700">{exportError}</p>}
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+        >
+          <Download size={16} />
+          {exporting ? 'Preparing…' : 'Download my data'}
+        </button>
+      </section>
+
+      {/* Delete account (POPIA: right to deletion) */}
       <section className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm">
         <h2 className="flex items-center gap-2 font-semibold text-red-700">
           <Trash2 size={18} /> Delete account

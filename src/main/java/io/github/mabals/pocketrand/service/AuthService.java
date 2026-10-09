@@ -12,6 +12,7 @@ import io.github.mabals.pocketrand.exception.EmailAlreadyUsedException;
 import io.github.mabals.pocketrand.exception.InvalidCredentialsException;
 import io.github.mabals.pocketrand.model.User;
 import io.github.mabals.pocketrand.repository.UserRepository;
+import java.time.Instant;
 
 @Service
 public class AuthService {
@@ -19,12 +20,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final DemoDataService demoDataService;                     // ← 2. new field
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       TokenService tokenService,
+                       DemoDataService demoDataService) {              // ← 3. new parameter
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
-}
+        this.demoDataService = demoDataService;                        // ← 4. new assignment
+    }
+
+    // ... register, login, getCurrentUser stay exactly as they are ...
 
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -34,7 +42,9 @@ public class AuthService {
         }
 
         String passwordHash = passwordEncoder.encode(request.password());
-        User user = userRepository.save(new User(request.fullName().trim(), email, passwordHash));
+        User user = new User(request.fullName().trim(), email, passwordHash);
+        user.recordPrivacyConsent(Instant.now());
+        userRepository.save(user);
         return UserResponse.from(user);
     }
 
@@ -55,5 +65,12 @@ public class AuthService {
         return userRepository.findById(userId)
                 .map(UserResponse::from)
                 .orElseThrow(InvalidCredentialsException::new);
+    }
+
+    @Transactional
+    public AuthResponse loginAsDemo() {
+        User demoUser = demoDataService.createDemoUser();
+        String token = tokenService.createToken(demoUser);
+        return new AuthResponse(token, "Bearer", tokenService.getExpirySeconds(), UserResponse.from(demoUser));
     }
 }

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
 import { FileUp, PiggyBank, Sparkles, type LucideIcon } from 'lucide-react'
 import Logo from './Logo'
 
@@ -47,6 +48,11 @@ export default function AuthCard({ title, subtitle, children }: AuthCardProps) {
           <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
           <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
           <div className="mt-6">{children}</div>
+          <p className="mt-8 text-center text-xs text-slate-400">
+          <Link to="/privacy" className="hover:text-slate-600 hover:underline">
+            Privacy notice
+          </Link>
+        </p>
         </div>
       </main>
     </div>

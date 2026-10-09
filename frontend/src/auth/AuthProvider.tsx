@@ -27,10 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user)
   }
 
-  async function register(fullName: string, email: string, password: string) {
+  async function loginDemo() {
+    const result = await api<AuthResponse>('/auth/demo', { method: 'POST' })
+    setToken(result.accessToken)
+    setUser(result.user)
+  }
+
+  async function register(fullName: string, email: string, password: string, acceptedPrivacy: boolean) {
     await api<User>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ fullName, email, password }),
+      body: JSON.stringify({ fullName, email, password, acceptedPrivacy }),
     })
     await login(email, password)
   }
@@ -41,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, loginDemo }}>
       {children}
     </AuthContext.Provider>
   )

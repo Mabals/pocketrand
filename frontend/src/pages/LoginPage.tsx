@@ -7,7 +7,7 @@ import TextField from '../components/TextField'
 
 
 export default function LoginPage() {
-  const { user, login } = useAuth()
+  const { user, login, loginDemo } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const notice = (location.state as { message?: string } | null)?.message
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [startingDemo, setStartingDemo] = useState(false)
 
   if (user) {
     return <Navigate to="/" replace />
@@ -31,6 +32,19 @@ export default function LoginPage() {
       setError(err instanceof ApiError ? err.message : 'Something went wrong')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleDemo() {
+    setError('')
+    setStartingDemo(true)
+    try {
+      await loginDemo()
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not start the demo')
+    } finally {
+      setStartingDemo(false)
     }
   }
 
@@ -70,6 +84,26 @@ export default function LoginPage() {
           </Link>
         </p>
       </form>
+      <div className="my-6 flex items-center gap-3 text-xs text-slate-400">
+        <span className="h-px flex-1 bg-slate-200" />
+        or
+        <span className="h-px flex-1 bg-slate-200" />
+      </div>
+      <button
+        type="button"
+        onClick={handleDemo}
+        disabled={startingDemo}
+        className="w-full rounded-lg border border-emerald-600 py-2.5 font-medium text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-60"
+      >
+        {startingDemo ? 'Setting up your demo…' : 'Try the demo, no sign-up needed'}
+      </button>
+            <p className="mt-2 text-center text-xs text-slate-400">
+        By trying the demo you accept the{' '}
+        <Link to="/privacy" className="underline hover:text-slate-600">
+          privacy notice
+        </Link>
+        .
+      </p>
     </AuthCard>
   )
 }

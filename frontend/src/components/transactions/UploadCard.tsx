@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { CheckCircle2, Upload } from 'lucide-react'
 import { api, ApiError } from '../../api/client'
 import type { ImportResult } from '../../types'
+import { Link } from 'react-router'
 
 type UploadCardProps = {
   onImported: () => void
@@ -45,7 +46,11 @@ export default function UploadCard({ onImported }: UploadCardProps) {
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="font-semibold text-slate-900">Upload a statement</h2>
       <p className="mt-1 text-sm text-slate-500">
-        PDF or CSV from your bank. Your name and account number are never sent to the AI.
+        PDF or CSV from your bank. Only transaction descriptions and amounts are sent to an AI service to categorise
+        them. Your name and account number never are.{' '}
+        <Link to="/privacy" className="font-medium text-emerald-700 hover:underline">
+          Learn more
+        </Link>
       </p>
 
       <form onSubmit={handleUpload} className="mt-4 flex flex-wrap items-center gap-3">

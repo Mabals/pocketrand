@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
 
   if (user) {
     return <Navigate to="/" replace />
@@ -25,7 +26,7 @@ export default function RegisterPage() {
     setFieldErrors({})
     setSubmitting(true)
     try {
-      await register(fullName, email, password)
+      await register(fullName, email, password, acceptedPrivacy)
       navigate('/')
     } catch (err) {
       if (err instanceof ApiError) {
@@ -69,6 +70,27 @@ export default function RegisterPage() {
           error={fieldErrors.password}
           autoComplete="new-password"
         />
+        <label className="flex items-start gap-2 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={acceptedPrivacy}
+            onChange={(event) => setAcceptedPrivacy(event.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-emerald-600"
+          />
+          <span>
+            I've read the{' '}
+            <Link
+              to="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-emerald-700 underline"
+            >
+              privacy notice
+            </Link>{' '}
+            and agree to PocketRand processing my information as described.
+          </span>
+        </label>
+        {fieldErrors.acceptedPrivacy && <p className="-mt-2 text-xs text-red-600">{fieldErrors.acceptedPrivacy}</p>}
         <button
           type="submit"
           disabled={submitting}

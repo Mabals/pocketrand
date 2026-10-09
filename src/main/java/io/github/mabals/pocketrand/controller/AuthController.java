@@ -60,4 +60,9 @@ public class AuthController {
     public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         passwordResetService.resetPassword(request.token(), request.newPassword());
     }
+
+    @PostMapping("/demo")
+    public AuthResponse demo() {
+        return authService.loginAsDemo();
+    }
 }
