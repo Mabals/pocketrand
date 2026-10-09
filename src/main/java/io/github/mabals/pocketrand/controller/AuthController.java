@@ -11,10 +11,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.mabals.pocketrand.dto.AuthResponse;
+import io.github.mabals.pocketrand.dto.ForgotPasswordRequest;
 import io.github.mabals.pocketrand.dto.LoginRequest;
+import io.github.mabals.pocketrand.dto.MessageResponse;
 import io.github.mabals.pocketrand.dto.RegisterRequest;
+import io.github.mabals.pocketrand.dto.ResetPasswordRequest;
 import io.github.mabals.pocketrand.dto.UserResponse;
 import io.github.mabals.pocketrand.service.AuthService;
+import io.github.mabals.pocketrand.service.PasswordResetService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -22,9 +26,11 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, PasswordResetService passwordResetService) {
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
     }
 
     @PostMapping("/register")
@@ -41,5 +47,17 @@ public class AuthController {
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal Jwt jwt) {
         return authService.getCurrentUser(Long.valueOf(jwt.getSubject()));
+    }
+
+    @PostMapping("/forgot-password")
+    public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request.email());
+        return new MessageResponse("If an account exists for that email, we've sent a reset link.");
+    }
+
+    @PostMapping("/reset-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request.token(), request.newPassword());
     }
 }

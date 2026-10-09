@@ -1,13 +1,16 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import { ApiError } from '../api/client'
 import AuthCard from '../components/AuthCard'
 import TextField from '../components/TextField'
 
+
 export default function LoginPage() {
   const { user, login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const notice = (location.state as { message?: string } | null)?.message
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -34,6 +37,9 @@ export default function LoginPage() {
   return (
     <AuthCard title="Welcome back" subtitle="Log in to see where your money goes.">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {notice && !error && (
+          <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{notice}</p>
+        )}
         {error && (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
         )}
@@ -45,6 +51,11 @@ export default function LoginPage() {
           onChange={setPassword}
           autoComplete="current-password"
         />
+        <div className="-mt-2 text-right">
+          <Link to="/forgot-password" className="text-sm font-medium text-emerald-700 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
         <button
           type="submit"
           disabled={submitting}

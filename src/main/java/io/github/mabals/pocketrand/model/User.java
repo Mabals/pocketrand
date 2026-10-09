@@ -34,10 +34,15 @@ public class User {
         // Required by JPA
     }
 
+
     public User(String fullName, String email, String passwordHash) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
+    }
+
+    public void changePasswordHash(String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 
     @PrePersist

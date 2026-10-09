@@ -25,12 +25,17 @@ export default function Layout() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Logo />
           <div className="flex items-center gap-2">
-            <span
-              title={user?.fullName}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-sm font-semibold text-emerald-700"
+            <NavLink
+              to="/settings"
+              title="Settings"
+              className={({ isActive }) =>
+                `flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition ${
+                  isActive ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                }`
+              }
             >
               {initials}
-            </span>
+            </NavLink>
             <button
               onClick={logout}
               className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-100"
