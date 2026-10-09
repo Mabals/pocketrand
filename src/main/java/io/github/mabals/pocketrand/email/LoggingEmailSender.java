@@ -2,9 +2,7 @@ package io.github.mabals.pocketrand.email;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class LoggingEmailSender implements EmailSender {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingEmailSender.class);
