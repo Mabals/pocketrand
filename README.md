@@ -25,8 +25,8 @@ Personal bank statements are also usually downloaded as **PDFs**, not spreadshee
 | Monthly insights: totals, spending by category, top expenses | ✅ Done|
 | Budgets with near-limit and over-limit warnings | ✅ Done |
 | Income tax (PAYE) estimate using current SARS tables | ✅ Done |
-| React + TypeScript dashboard | ⏳ Planned |
-| Docker, CI/CD pipeline and live deployment | ⏳ Planned |
+| React + TypeScript dashboard | ✅ Done |
+| Docker, CI/CD pipeline and live deployment | ✅ Done |
 
 ## Tech stack
 
